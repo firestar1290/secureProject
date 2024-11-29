@@ -9,8 +9,6 @@ using convert_type = std::codecvt_utf8<wchar_t>;
 
 std::wstring_convert<convert_type, wchar_t> converter;
 
-#pragma GCC push_options
-#pragma GCC optimize ("Og")
 client::client(std::string ipAddr = SELF){
     if(ipAddr == "") throw std::logic_error("No IP provided");
     //Step 1
@@ -105,8 +103,9 @@ client::~client(){
 #pragma GCC push_options
 #pragma GCC optimize ("Og")
 bool client::sendMessage(std::string message){
+    std::string encryptedMessage = encryptMessage(message, ENCRYPTION_KEY, ENCRYPTION_IV); // encrypt message
     int error;
-    error = send(clientSocket,message.c_str(),message.length(),0);
+    error = send(clientSocket,encryptedMessage.c_str(),encryptedMessage.length(),0);
     if((error == SOCKET_ERROR) && (error = WSAGetLastError())){
         std::cerr << "WARNING: Error sending message to " << inet_ntoa(socketAddr.sin_addr) << ": " << error << std::endl;
         return false;
